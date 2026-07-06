@@ -1,0 +1,119 @@
+// AutoPost Nexus — Database Schema (schema-of-record)
+// NOTE: Not validated via `prisma generate` in this sandbox — the Prisma
+// engine-binary download domain (binaries.prisma.sh) is outside this
+// environment's network allowlist. This schema is the documented target;
+// backend services below use in-memory stores mirroring these shapes,
+// matching the disclosed architecture pattern from the original project
+// (schema-first, services-later — see Handoff Summary Phase 1).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Platform {
+  TIKTOK
+  INSTAGRAM
+  YOUTUBE
+  FACEBOOK
+  TWITTER
+  LINKEDIN
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+}
+
+enum EthicsSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  name         String?
+  createdAt    DateTime   @default(now())
+  posts        Post[]
+  schedules    Schedule[]
+
+  @@index([email])
+}
+
+model Post {
+  id           String      @id @default(uuid())
+  userId       String
+  platform     Platform
+  content      String
+  hashtags     String[]
+  status       PostStatus  @default(DRAFT)
+  omegaScore   Float?
+  scheduledAt  DateTime?
+  publishedAt  DateTime?
+  createdAt    DateTime    @default(now())
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analytics    PostAnalytics?
+  violations   EthicsViolation[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Schedule {
+  id         String    @id @default(uuid())
+  userId     String
+  platform   Platform
+  frequency  String
+  time       String
+  isActive   Boolean   @default(true)
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PostAnalytics {
+  id             String   @id @default(uuid())
+  postId         String   @unique
+  views          Int      @default(0)
+  likes          Int      @default(0)
+  comments       Int      @default(0)
+  shares         Int      @default(0)
+  engagementRate Float?
+
+  post           Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model EthicsViolation {
+  id          String          @id @default(uuid())
+  postId      String
+  category    String
+  severity    EthicsSeverity
+  description String
+  createdAt   DateTime        @default(now())
+
+  post        Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model TrendCache {
+  id         String   @id @default(uuid())
+  platform   Platform
+  topic      String
+  score      Float
+  scrapedAt  DateTime @default(now())
+
+  @@unique([platform, topic])
+}
