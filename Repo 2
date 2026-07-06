@@ -1,0 +1,10 @@
+package.json
+tsconfig.json
+app.json
+index.ts
+src/api/client.ts
+src/context/AuthContext.tsx
+src/screens/LoginScreen.tsx
+src/screens/RegisterScreen.tsx
+src/screens/DashboardScreen.tsx
+App.tsx
