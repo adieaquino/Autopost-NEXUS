@@ -1,6 +1,0 @@
-src/services/auth/passwordService.ts
-src/services/auth/tokenService.ts
-src/services/socialPlatforms/base.ts
-src/services/socialPlatforms/meta.ts
-src/services/socialPlatforms/tiktok.ts
-src/services/socialPlatforms/youtube.ts
