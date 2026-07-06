@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: nexus-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true
+      # Add these manually in Render's dashboard once you have real
+      # developer app credentials — leave unset to keep local-only fallback
+      # behavior (see .env.example for where to get each one):
+      - key: META_APP_ID
+        sync: false
+      - key: META_APP_SECRET
+        sync: false
+      - key: TIKTOK_CLIENT_KEY
+        sync: false
+      - key: TIKTOK_CLIENT_SECRET
+        sync: false
+      - key: YOUTUBE_CLIENT_ID
+        sync: false
+      - key: YOUTUBE_CLIENT_SECRET
+        sync: false
+    healthCheckPath: /health
